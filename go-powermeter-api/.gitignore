@@ -1,0 +1,10 @@
+# Abaikan file environment yang berisi kunci rahasia
+.env
+
+# Abaikan hasil kompilasi dan file binary
+# (Nama binary biasanya sama dengan nama folder proyek Anda)
+go-powermeter-api
+go-powermeter-api.exe
+
+# Abaikan direktori spesifik dari sistem operasi
+.DS_Store

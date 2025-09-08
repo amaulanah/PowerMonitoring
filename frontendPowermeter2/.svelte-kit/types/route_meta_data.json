@@ -1,0 +1,13 @@
+{
+	"/": [
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/login": [
+		"src/routes/+layout.ts"
+	],
+	"/pm/[meterId]": [
+		"src/routes/pm/[meterId]/+page.ts",
+		"src/routes/+layout.ts"
+	]
+}
