@@ -14,12 +14,18 @@ import (
 
 const plcIpAddress = "127.0.0.1:502" // Ganti dengan IP PLC Anda
 
+// func bytesToFloat32(bytes []byte) float64 {
+// 	swappedBytes := []byte{bytes[0], bytes[1], bytes[2], bytes[3]}
+// 	bits := binary.BigEndian.Uint32(swappedBytes)
+// 	return float64(math.Float32frombits(bits))
+// }
+
 func bytesToFloat32(bytes []byte) float64 {
-	bits := binary.BigEndian.Uint32(bytes)
+	// Menggunakan LittleEndian
+	bits := binary.LittleEndian.Uint32(bytes)
 	return float64(math.Float32frombits(bits))
 }
 
-// Fungsi BARU yang akan kita panggil dari main.go
 func ReadAllMetersData(deviceIDs []string) ([]models.PowerMeterReading, error) {
 	handler := modbus.NewTCPClientHandler(plcIpAddress)
 	handler.Timeout = 10 * time.Second
@@ -33,7 +39,6 @@ func ReadAllMetersData(deviceIDs []string) ([]models.PowerMeterReading, error) {
 	client := modbus.NewClient(handler)
 	var allReadings []models.PowerMeterReading
 
-	// Loop sekarang berjalan berdasarkan daftar deviceID yang diberikan
 	for _, meterId := range deviceIDs {
 		startAddress := calculateStartAddressFor(meterId)
 		if startAddress == -1 {
@@ -51,6 +56,7 @@ func ReadAllMetersData(deviceIDs []string) ([]models.PowerMeterReading, error) {
 			continue
 		}
 
+		// Kode pemetaan ini sekarang akan bekerja dengan benar
 		reading := models.PowerMeterReading{
 			DeviceID:                     meterId,
 			Timestamp:                    time.Now().UTC(),

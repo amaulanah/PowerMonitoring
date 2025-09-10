@@ -21,7 +21,17 @@
 			}
 
 			const data = await response.json();
-			authToken.set(data.token);
+			
+			// =======================================================
+			// PERUBAHAN UTAMA ADA DI SINI
+			// =======================================================
+			const token = data.token;
+			// Pastikan kita menyimpan ke localStorage dengan kunci 'jwt_token'
+			window.localStorage.setItem('jwt_token', token);
+			// Perbarui store, yang akan memicu update di seluruh aplikasi
+			authToken.set(token);
+			// =======================================================
+
 			goto('/'); // Arahkan ke halaman utama setelah login
 		} catch (err: any) {
 			error = err.message;

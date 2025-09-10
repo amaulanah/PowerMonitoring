@@ -2,7 +2,6 @@ package models
 
 import "time"
 
-// Struct PowerMeterReading dengan 29 field data
 type PowerMeterReading struct {
 	Timestamp                    time.Time `json:"timestamp"`
 	DeviceID                     string    `json:"deviceId"`

@@ -1,8 +1,8 @@
-// src/lib/stores/websocketStore.ts
 import { writable } from 'svelte/store';
+import type { PowerMeterReading } from '$lib/types/PowerMeterReading';
 
 function createRealtimeStore() {
-	const { subscribe, set } = writable<any[]>([]);
+	const { subscribe, set } = writable<PowerMeterReading[]>([]);
 	let ws: WebSocket | null = null;
 
 	function connect(url: string, token: string) {

@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/amaulanah/powermeterapi/models" // Ganti dengan path modul Anda
@@ -34,6 +35,10 @@ func (pool *Pool) Start() {
 			delete(pool.Clients, client)
 			fmt.Println("Koneksi terputus. Ukuran pool:", len(pool.Clients))
 		case message := <-pool.Broadcast:
+			// 2. TAMBAHKAN PRINT DEBUG DI SINI
+			// =======================================================
+			jsonData, _ := json.Marshal(message)
+			fmt.Println("Mengirim JSON:", string(jsonData))
 			// Kirim pesan ke semua client yang terhubung
 			for client := range pool.Clients {
 				if err := client.Conn.WriteJSON(message); err != nil {

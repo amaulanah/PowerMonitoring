@@ -1,0 +1,33 @@
+export interface PowerMeterReading {
+	timestamp: string;
+	deviceId: string;
+	energyKWh: number;
+	currentL1: number;
+	currentL2: number;
+	currentL3: number;
+	currentAverage: number;
+	voltageL1ToL2: number;
+	voltageL1ToL3: number;
+	voltageL2ToL3: number;
+	voltage3PhaseAverage: number;
+	voltageL1ToN: number;
+	voltageL2ToN: number;
+	voltageL3ToN: number;
+	voltage1PhaseAverage: number;
+	activePowerL1: number;
+	activePowerL2: number;
+	activePowerL3: number;
+	activePowerTotal: number;
+	reactivePowerL1: number;
+	reactivePowerL2: number;
+	reactivePowerL3: number;
+	reactivePowerTotal: number;
+	powerFactorL1: number;
+	powerFactorL2: number;
+	powerFactorL3: number;
+	powerFactorTotal: number;
+	harmonicDistortionCurrent: number;
+	harmonicDistortionVoltage3Ph: number;
+	harmonicDistortionVoltage1Ph: number;
+	frequency: number;
+}
