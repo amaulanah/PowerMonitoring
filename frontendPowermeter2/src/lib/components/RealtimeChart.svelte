@@ -10,11 +10,15 @@
 	export let meterId: string;
 
 	let chartData: any = { labels: [], datasets: [] };
-	let selectedParameter = 'ActivePowerTotal';
+	let selectedParameter = 'Active_Energy_Kwh';
 	let selectedInterval = 'minute';
 
 	const parameters = [
-		"EnergyKWh", "ActivePowerTotal", "Frequency", "CurrentAverage", "Voltage3PhaseAverage", "PowerFactorTotal"
+		"Timestamp", "DeviceId", "Active_Energy_Kwh", "Current_A", "Current_B", "Current_C", "Current_N", "Current_G", 
+		"Current_Avg", "Voltage_AB", "Voltage_BC", "Voltage_CA", "VoltageL_Avg", "Voltage_AN", "Voltage_BN", "Voltage_CN", 
+		"NA", "VoltageN_Avg", "Active_Power_A", "Active_Power_B", "Active_Power_C", "Active_Power_Total", "Reactive_Power_A", 
+		"Reactive_Power_B", "Reactive_Power_C", "Reactive_Power_Total", "Apparent_Power_A", "Apparent_Power_B", "Apparent_Power_C", 
+		"Apparent_Power_Total", "Power_Factor_A", "Power_Factor_B", "Power_Factor_C", "Power_Factor_Total", "Frequency"
 	];
 	const intervals = ['second', 'minute', 'hour', 'day'];
 

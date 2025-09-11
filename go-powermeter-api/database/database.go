@@ -35,26 +35,24 @@ func NewConnection() (*pgxpool.Pool, error) {
 func InsertReadings(pool *pgxpool.Pool, readings []models.PowerMeterReading) error {
 	// Daftar kolom HARUS sama persis urutannya dengan di bawah
 	columnNames := []string{
-		"Timestamp", "DeviceId", "EnergyKWh", "CurrentL1", "CurrentL2", "CurrentL3", "CurrentAverage",
-		"VoltageL1ToL2", "VoltageL1ToL3", "VoltageL2ToL3", "Voltage3PhaseAverage", "VoltageL1ToN",
-		"VoltageL2ToN", "VoltageL3ToN", "Voltage1PhaseAverage", "ActivePowerL1", "ActivePowerL2",
-		"ActivePowerL3", "ActivePowerTotal", "ReactivePowerL1", "ReactivePowerL2", "ReactivePowerL3",
-		"ReactivePowerTotal", "PowerFactorL1", "PowerFactorL2", "PowerFactorL3", "PowerFactorTotal",
-		"HarmonicDistortionCurrent", "HarmonicDistortionVoltage3Ph", "HarmonicDistortionVoltage1Ph",
-		"Frequency",
+		"Timestamp", "DeviceId", "Active_Energy_Kwh", "Current_A", "Current_B", "Current_C", "Current_N",
+		"Current_G", "Current_Avg", "Voltage_AB", "Voltage_BC", "Voltage_CA", "VoltageL_Avg", "Voltage_AN",
+		"Voltage_BN", "Voltage_CN", "NA", "VoltageN_Avg", "Active_Power_A", "Active_Power_B", "Active_Power_C",
+		"Active_Power_Total", "Reactive_Power_A", "Reactive_Power_B", "Reactive_Power_C", "Reactive_Power_Total",
+		"Apparent_Power_A", "Apparent_Power_B", "Apparent_Power_C", "Apparent_Power_Total", "Power_Factor_A",
+		"Power_Factor_B", "Power_Factor_C", "Power_Factor_Total", "Frequency",
 	}
 
 	rows := make([][]interface{}, len(readings))
 	for i, r := range readings {
 		// Urutan data HARUS sama persis dengan daftar kolom di atas
 		rows[i] = []interface{}{
-			r.Timestamp, r.DeviceID, r.EnergyKWh, r.CurrentL1, r.CurrentL2, r.CurrentL3, r.CurrentAverage,
-			r.VoltageL1ToL2, r.VoltageL1ToL3, r.VoltageL2ToL3, r.Voltage3PhaseAverage, r.VoltageL1ToN,
-			r.VoltageL2ToN, r.VoltageL3ToN, r.Voltage1PhaseAverage, r.ActivePowerL1, r.ActivePowerL2,
-			r.ActivePowerL3, r.ActivePowerTotal, r.ReactivePowerL1, r.ReactivePowerL2, r.ReactivePowerL3,
-			r.ReactivePowerTotal, r.PowerFactorL1, r.PowerFactorL2, r.PowerFactorL3, r.PowerFactorTotal,
-			r.HarmonicDistortionCurrent, r.HarmonicDistortionVoltage3Ph, r.HarmonicDistortionVoltage1Ph,
-			r.Frequency,
+			r.Timestamp, r.DeviceID, r.Active_Energy_Kwh, r.Current_A, r.Current_B, r.Current_C, r.Current_N,
+			r.Current_G, r.Current_Avg, r.Voltage_AB, r.Voltage_BC, r.Voltage_CA, r.VoltageL_Avg, r.Voltage_AN,
+			r.Voltage_BN, r.Voltage_CN, r.NA, r.VoltageN_Avg, r.Active_Power_A, r.Active_Power_B, r.Active_Power_C,
+			r.Active_Power_Total, r.Reactive_Power_A, r.Reactive_Power_B, r.Reactive_Power_C, r.Reactive_Power_Total,
+			r.Apparent_Power_A, r.Apparent_Power_B, r.Apparent_Power_C, r.Apparent_Power_Total, r.Power_Factor_A,
+			r.Power_Factor_B, r.Power_Factor_C, r.Power_Factor_Total, r.Frequency,
 		}
 	}
 
