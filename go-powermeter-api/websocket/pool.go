@@ -1,13 +1,11 @@
 package websocket
 
 import (
-	"encoding/json"
 	"fmt"
 
-	"github.com/amaulanah/powermeterapi/models" // Ganti dengan path modul Anda
+	"github.com/amaulanah/powermeterapi/models" // Sesuaikan path modul Anda
 )
 
-// Pool untuk mengelola semua koneksi client
 type Pool struct {
 	Register   chan *Client
 	Unregister chan *Client
@@ -24,27 +22,33 @@ func NewPool() *Pool {
 	}
 }
 
-// Method untuk menjalankan pool di background
 func (pool *Pool) Start() {
 	for {
 		select {
 		case client := <-pool.Register:
 			pool.Clients[client] = true
 			fmt.Println("Koneksi baru. Ukuran pool:", len(pool.Clients))
+
 		case client := <-pool.Unregister:
-			delete(pool.Clients, client)
-			fmt.Println("Koneksi terputus. Ukuran pool:", len(pool.Clients))
+			if _, ok := pool.Clients[client]; ok {
+				delete(pool.Clients, client)
+				fmt.Println("Koneksi terputus. Ukuran pool:", len(pool.Clients))
+			}
+
 		case message := <-pool.Broadcast:
-			// 2. TAMBAHKAN PRINT DEBUG DI SINI
-			// =======================================================
-			jsonData, _ := json.Marshal(message)
-			fmt.Println("Mengirim JSON:", string(jsonData))
-			// Kirim pesan ke semua client yang terhubung
+			fmt.Println("Menyiarkan pesan ke semua klien...")
+			// Kirim pesan ke semua klien yang terhubung
 			for client := range pool.Clients {
-				if err := client.Conn.WriteJSON(message); err != nil {
-					fmt.Println(err)
-					continue
-				}
+				// Perbaikan Kunci: Gunakan goroutine untuk mengirim pesan
+				// agar tidak memblokir loop utama jika satu klien lambat/error.
+				go func(c *Client) {
+					if err := c.Conn.WriteJSON(message); err != nil {
+						fmt.Println("Gagal mengirim ke klien, akan dihapus:", err)
+						// Jika gagal mengirim, kirim klien ini ke channel Unregister
+						c.Pool.Unregister <- c
+						c.Conn.Close()
+					}
+				}(client) // <-- Jalankan fungsi anonim ini sebagai goroutine
 			}
 		}
 	}

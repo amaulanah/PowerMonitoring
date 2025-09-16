@@ -85,7 +85,7 @@ func GetUserByUsername(pool *pgxpool.Pool, username string) (*User, error) {
 }
 
 func GetAllDeviceIDs(pool *pgxpool.Pool) ([]string, error) {
-	rows, err := pool.Query(context.Background(), `SELECT "Id" FROM devices ORDER BY "Id"`)
+	rows, err := pool.Query(context.Background(), `SELECT "Id" FROM devices ORDER BY CAST(REGEXP_REPLACE("Id", '\D', '', 'g') AS INTEGER)`)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +112,14 @@ func GetHistoricalData(pool *pgxpool.Pool, deviceID string, parameter string, in
 	// Validasi input untuk mencegah SQL Injection pada nama kolom dan interval
 	// Ini adalah daftar kolom yang diizinkan untuk di-query
 	allowedParameters := map[string]bool{
-		"EnergyKWh": true, "ActivePowerTotal": true, "Frequency": true, // Tambahkan semua 29 parameter di sini
+		"Active_Energy_Kwh": true, "Current_A": true, "Current_B": true, "Current_C": true, "Current_N": true,
+		"Current_G": true, "Current_Avg": true, "Voltage_AB": true, "Voltage_BC": true, "Voltage_CA": true, 
+        "VoltageL_Avg": true, "Voltage_AN": true, "Voltage_BN": true, "Voltage_CN": true, "VoltageN_Avg": true, 
+        "Active_Power_A": true, "Active_Power_B": true, "Active_Power_C": true, "Active_Power_Total": true, 
+        "Reactive_Power_A": true, "Reactive_Power_B": true, "Reactive_Power_C": true, "Reactive_Power_Total": true,
+		"Apparent_Power_A": true, "Apparent_Power_B": true, "Apparent_Power_C": true, "Apparent_Power_Total": true,
+		"Power_Factor_A": true, "Power_Factor_B": true, "Power_Factor_C": true, "Power_Factor_Total": true, 
+        "Frequency": true,
 	}
 	if !allowedParameters[parameter] {
 		return nil, fmt.Errorf("parameter tidak valid: %s", parameter)

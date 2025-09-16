@@ -131,15 +131,46 @@ func main() {
 	config.AllowOrigins = []string{"http://localhost:5173"}
 	config.AllowCredentials = true
 	config.AllowMethods = []string{"GET", "POST", "OPTIONS"}
-	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
 	router.Use(cors.New(config))
 
+	publicApi := router.Group("/api")
+	{
+	publicApi.POST("/login", func(c *gin.Context) {
+			var req LoginRequest
+			if err := c.ShouldBindJSON(&req); err != nil {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "Input tidak valid"})
+				return
+			}
+
+			user, err := database.GetUserByUsername(dbPool, req.Username)
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Username atau password salah"})
+				return
+			}
+
+			err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password))
+			if err != nil {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "Username atau password salah"})
+				return
+			}
+
+			token, err := auth.GenerateJWT(user.Username)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuat token"})
+				return
+			}
+			c.JSON(http.StatusOK, gin.H{"token": token})
+		})
+	}
+
 	// --- Grup API yang diproteksi ---
-	api := router.Group("/api")
+	protectedApi := router.Group("/api")
+	protectedApi.Use(auth.AuthMiddleware())
 	// Middleware untuk proteksi API akan kita tambahkan nanti jika perlu
 	{
 		// ENDPOINT BARU: Mengambil daftar semua perangkat
-		api.GET("/devices", func(c *gin.Context) {
+		protectedApi.GET("/devices", func(c *gin.Context) {
 			deviceIDs, err := database.GetAllDeviceIDs(dbPool)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal mengambil data perangkat"})
@@ -149,7 +180,7 @@ func main() {
 		})
 
 		// ENDPOINT BARU: Mengambil data historis untuk chart
-		api.GET("/historical-data", func(c *gin.Context) {
+		protectedApi.GET("/historical-data", func(c *gin.Context) {
 			// Ambil parameter dari query URL
 			deviceID := c.Query("deviceId")
 			parameter := c.Query("parameter") // contoh: "ActivePowerTotal"
@@ -166,42 +197,23 @@ func main() {
 		})
 	}
 
-	router.POST("/login", func(c *gin.Context) {
-		var req LoginRequest
-		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Input tidak valid"})
-			return
-		}
-
-		user, err := database.GetUserByUsername(dbPool, req.Username)
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Username atau password salah"})
-			return
-		}
-
-		err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password))
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Username atau password salah"})
-			return
-		}
-
-		token, err := auth.GenerateJWT(user.Username)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Gagal membuat token"})
-			return
-		}
-		c.JSON(http.StatusOK, gin.H{"token": token})
-	})
-
 	router.GET("/ws", func(c *gin.Context) {
+		log.Println("Menerima permintaan koneksi websocket")
 		tokenStr := c.Query("token")
 		if tokenStr == "" {
+			log.Println("WS Connection rejected: token empty")
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		_, err := auth.ValidateJWT(tokenStr)
+		log.Printf("Menerima token dari query: %s", tokenStr)
+		claims,err := auth.ValidateJWT(tokenStr)
+		//_, err := auth.ValidateJWT(tokenStr)
 		if err != nil {
+			log.Printf("WS Connection Rejected: Invalid token. Error: $v", err)
+			c.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
+		log.Printf("WS Token valid for user: %s. Upgrading connection", claims.Username)
 		websocket.Upgrade(c.Writer, c.Request, wsPool)
 	})
 

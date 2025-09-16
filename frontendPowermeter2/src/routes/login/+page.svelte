@@ -1,7 +1,10 @@
-<!-- src/routes/login/+page.svelte -->
 <script lang="ts">
 	import { authToken } from '$lib/stores/authStore';
 	import { goto } from '$app/navigation';
+    
+    // 1. IMPORT onMount DAN get
+    import { onMount } from 'svelte';
+    import { get } from 'svelte/store';
 
 	let username = '';
 	let password = '';
@@ -10,33 +13,81 @@
 	async function handleLogin() {
 		error = '';
 		try {
-			const response = await fetch('http://localhost:1234/login', {
+			const response = await fetch('/api/login', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ username, password })
 			});
-
+			
 			if (!response.ok) {
 				throw new Error('Username atau password salah');
 			}
-
-			const data = await response.json();
 			
-			// =======================================================
-			// PERUBAHAN UTAMA ADA DI SINI
-			// =======================================================
-			const token = data.token;
-			// Pastikan kita menyimpan ke localStorage dengan kunci 'jwt_token'
-			window.localStorage.setItem('jwt_token', token);
-			// Perbarui store, yang akan memicu update di seluruh aplikasi
-			authToken.set(token);
-			// =======================================================
-
-			goto('/'); // Arahkan ke halaman utama setelah login
+			const data = await response.json();
+			authToken.set(data.token);
+			await goto('/');
+			
 		} catch (err: any) {
 			error = err.message;
 		}
 	}
+//	async function handleLogin() {
+//		error = '';
+//		try {
+//			const response = await fetch('/api/login', {
+//				method: 'POST',
+//				headers: { 'Content-Type': 'application/json' },
+//				body: JSON.stringify({ username, password })
+//			});
+//			
+//			if (!response.ok) {
+//				throw new Error('Username atau password salah');
+//			}
+//
+//			const data = await response.json();
+//			authToken.set(data.token);
+//		goto('/');
+//			} catch (err: any) {
+//				error = err.message;
+//			}
+//		}
+
+
+//    // 2. TAMBAHKAN BLOK onMount INI
+//    // Blok ini akan berjalan saat halaman login pertama kali dibuka
+//    onMount(() => {
+//        // Cek apakah sudah ada token di dalam store
+//        if (get(authToken)) {
+//            console.log("Login page: Sudah ada token, redirect ke halaman utama...");
+//            goto('/'); // Jika ada, langsung arahkan ke dashboard
+//        }
+//    });
+//
+//	async function handleLogin() {
+//		error = '';
+//		try {
+//			const response = await fetch('/api/login', {
+//				method: 'POST',
+//				headers: { 'Content-Type': 'application/json' },
+//				body: JSON.stringify({ username, password })
+//			});
+//
+//			if (!response.ok) {
+//				throw new Error('Username atau password salah');
+//			}
+//
+//			const data = await response.json();
+//			const token = data.token;
+//			
+//          // Baris-baris ini sudah benar
+//			window.localStorage.setItem('jwt_token', token);
+//			authToken.set(token);
+//
+//			goto('/'); // Arahkan ke halaman utama setelah login
+//		} catch (err: any) {
+//			error = err.message;
+//		}
+//	}
 </script>
 
 <div class="flex items-center justify-center h-screen">

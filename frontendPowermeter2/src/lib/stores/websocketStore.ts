@@ -14,8 +14,11 @@ function createRealtimeStore() {
 
 		ws.onopen = () => console.log('WebSocket connection opened');
 		ws.onmessage = (event) => {
+			console.log("Pesan raw dari onmessage: ", event.data);
 			try {
-				set(JSON.parse(event.data));
+				const readings = JSON.parse(event.data);
+				console.log("Data dari backend: ", readings);
+				set(readings);
 			} catch (error) {
 				console.error('Error parsing WebSocket message:', error);
 			}

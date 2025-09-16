@@ -4,6 +4,8 @@
 	import { Chart, Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement, TimeScale } from 'chart.js';
 	import 'chartjs-adapter-date-fns';
 	import { onMount } from 'svelte';
+	import { authToken } from '$lib/stores/authStore';
+	import { get } from 'svelte/store';
 
 	Chart.register(Title, Tooltip, Legend, LineElement, CategoryScale, LinearScale, PointElement, TimeScale);
 
@@ -23,8 +25,20 @@
 	const intervals = ['second', 'minute', 'hour', 'day'];
 
 	async function fetchData() {
+		const token = get(authToken);
+		if (!token) {
+			console.error("tidak ada token, fetch chart tidak ditampilkan");
+			return;
+		}
 		try {
-			const res = await fetch(`http://localhost:1234/api/historical-data?deviceId=${meterId}&parameter=${selectedParameter}&interval=${selectedInterval}`);
+			const authHeaders = {
+				'Authorization': `Bearer ${token}`
+			}
+			const res = await fetch(`/api/historical-data?deviceId=${meterId}&parameter=${selectedParameter}&interval=${selectedInterval}`, {headers: authHeaders});
+			if (!res.ok) {
+				throw new Error(`Gagal mengambil data chart: ${res.statusText}`);
+			}
+			
 			const data: { time: string; value: number }[] = await res.json();
 			
 			chartData = {
@@ -38,6 +52,7 @@
 			};
 		} catch (error) {
 			console.error("Gagal fetch data chart:", error);
+			chartData = { labels: [], datasets: [] };
 		}
 	}
 

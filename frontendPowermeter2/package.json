@@ -15,6 +15,7 @@
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",
 		"@sveltejs/adapter-auto": "^3.0.0",
+		"@sveltejs/adapter-static": "^3.0.9",
 		"@sveltejs/kit": "^2.0.0",
 		"@sveltejs/vite-plugin-svelte": "^3.0.0",
 		"@tailwindcss/postcss": "^4.1.11",
@@ -34,7 +35,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@rollup/rollup-win32-x64-msvc": "^4.46.2",
+		"@rollup/rollup-linux-arm64-gnu": "^4.46.2",
 		"autoprefixer": "^10.4.21",
 		"chart.js": "^4.5.0",
 		"chartjs-adapter-date-fns": "^3.0.0",
